@@ -52,6 +52,9 @@ and published — with SHA-256 + GitHub build-provenance attestation — by the
 [release workflow](.github/workflows/release.yml). Consumers should verify both
 before installing.
 
+Releases are cut with `cargo release` (one command bumps the version, tags, and
+pushes — which fires the release workflow). See [RELEASING.md](RELEASING.md).
+
 ## FFI example (Dart)
 
 ```dart

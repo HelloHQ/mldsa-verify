@@ -6,7 +6,7 @@ description = "Verify-only ML-DSA-65 (FIPS 204) post-quantum signatures over a C
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/HelloHQ/mldsa-verify"
 keywords = ["ml-dsa", "fips204", "post-quantum", "signature", "ffi"]
-categories = ["cryptography", "no-std::no-alloc", "api-bindings"]
+categories = ["cryptography", "api-bindings"]
 
 [lib]
 name = "mldsa_verify"

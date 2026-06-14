@@ -1,0 +1,24 @@
+# cargo-release configuration — keeps Cargo.toml's version and the git tag in
+# lockstep so neither is hand-edited. Release with:
+#
+#   cargo release patch --execute     # 0.1.0 -> 0.1.1
+#   cargo release minor --execute     # 0.1.0 -> 0.2.0
+#
+# It bumps Cargo.toml + Cargo.lock, commits, creates the tag `vX.Y.Z`, and
+# pushes — the tag push triggers .github/workflows/release.yml (cross-build +
+# build-provenance attestation + GitHub Release). See RELEASING.md.
+
+# crates.io publishing is done by CI (release.yml, via Trusted Publishing/OIDC)
+# on the pushed tag — NOT locally — so cargo-release only bumps, tags, and
+# pushes. Keeping this false avoids double-publishing the same version.
+publish = false
+
+# Push the release commit and the tag (the tag is what fires release.yml).
+push = true
+tag = true
+tag-name = "v{{version}}"            # matches release.yml trigger: tags: ["v*"]
+pre-release-commit-message = "release: {{version}}"
+tag-message = "mldsa-verify {{version}}"
+
+# Guard: only cut releases from main.
+allow-branch = ["main"]

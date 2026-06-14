@@ -74,3 +74,22 @@ jobs:
         run: |
           gh release create "$TAG" assets/* --repo "$GITHUB_REPOSITORY" \
             --title "$TAG" --generate-notes
+
+  # Publish the Rust crate to crates.io via Trusted Publishing (GitHub OIDC) —
+  # no long-lived token. One-time setup: add this repo + workflow as a trusted
+  # publisher in the crate's crates.io settings (see RELEASING.md). Gated on the
+  # cross-platform build so we never publish source that fails to compile.
+  publish-crate:
+    name: Publish to crates.io
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # mint the OIDC token exchanged for a short-lived crates.io token
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: rust-lang/crates-io-auth-action@v1
+        id: auth
+      - run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}

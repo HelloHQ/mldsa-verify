@@ -1,10 +1,11 @@
 //! Verify-only ML-DSA-65 (FIPS 204) over a C ABI.
 //!
-//! A thin, embeddable wrapper around the RustCrypto [`ml-dsa`] crate exposing a
-//! single C entry point, [`mldsa65_verify`], for FFI consumers (Dart/Flutter,
-//! Swift, Kotlin/JNI, …). Verification touches only *public* data (public key,
-//! message, signature) — there is no secret material and no side-channel
-//! surface, which is what makes a small wrapper appropriate to embed widely.
+//! A thin, embeddable wrapper around the RustCrypto [`ml-dsa`] crate. Rust
+//! callers use the safe [`verify`] function; FFI consumers (Dart/Flutter, Swift,
+//! Kotlin/JNI, …) use the C entry point [`mldsa65_verify`]. Verification touches
+//! only *public* data (public key, message, signature) — there is no secret
+//! material and no side-channel surface, which is what makes a small wrapper
+//! appropriate to embed widely.
 //!
 //! **Interop:** verifies **pure ML-DSA** (not HashML-DSA/prehash) with an
 //! **empty context**, which is what Google Cloud KMS's `ML-DSA-65` and other
@@ -19,10 +20,21 @@ use ml_dsa::{EncodedSignature, EncodedVerifyingKey, MlDsa65, Signature, Verifyin
 const PK_LEN: usize = 1952;
 const SIG_LEN: usize = 3309;
 
-/// Pure verification core. Returns true iff `sig` is a valid ML-DSA-65 signature
-/// over `msg` (empty context) for `pk`. Wrong-length or malformed inputs → false
-/// (fail closed). No panics for well-formed-length inputs.
-fn verify(pk: &[u8], msg: &[u8], sig: &[u8]) -> bool {
+/// Verify an ML-DSA-65 signature — the safe Rust API.
+///
+/// Returns `true` iff `sig` is a valid **pure ML-DSA-65** signature (empty
+/// context) over `msg` for the public key `pk`. All inputs are the raw FIPS-204
+/// byte encodings: `pk` is 1952 bytes, `sig` is 3309 bytes. Wrong-length or
+/// otherwise malformed inputs return `false` (fail closed); never panics.
+///
+/// ```
+/// # use mldsa_verify::verify;
+/// // pk: 1952-byte FIPS-204 public key, sig: 3309-byte signature.
+/// # let (pk, msg, sig): (&[u8], &[u8], &[u8]) = (&[], b"", &[]);
+/// let ok = verify(pk, msg, sig);
+/// # assert!(!ok); // empty inputs fail closed
+/// ```
+pub fn verify(pk: &[u8], msg: &[u8], sig: &[u8]) -> bool {
     if pk.len() != PK_LEN || sig.len() != SIG_LEN {
         return false;
     }
