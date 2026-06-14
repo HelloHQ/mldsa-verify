@@ -136,4 +136,52 @@ mod tests {
         let (pk, sig) = signed(b"");
         assert!(verify(&pk, b"", &sig));
     }
+
+    // ── Static known-answer tests (Wycheproof, independent vectors) ──────────
+    // Unlike the round-trip tests above, these use fixed bytes produced by
+    // Google/C2SP's signer — not by this crate — so they prove cross-impl
+    // interop and pin the FIPS-204 byte encoding: a future `ml-dsa` bump that
+    // changed the layout would fail here even though the round-trips still pass.
+    const KAT: &str = include_str!("../tests/vectors/wycheproof_mldsa65_verify.hex");
+
+    fn decode_hex(s: &str) -> Vec<u8> {
+        assert!(s.len() % 2 == 0, "odd hex length");
+        (0..s.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&s[i..i + 2], 16).expect("bad hex"))
+            .collect()
+    }
+
+    fn kat_field(name: &str) -> Vec<u8> {
+        let prefix = format!("{name}=");
+        let line = KAT
+            .lines()
+            .find(|l| l.starts_with(&prefix))
+            .unwrap_or_else(|| panic!("KAT field {name} missing"));
+        decode_hex(&line[prefix.len()..])
+    }
+
+    #[test]
+    fn wycheproof_baseline_vector_verifies() {
+        let (pk, msg, sig) = (
+            kat_field("valid.pk"),
+            kat_field("valid.msg"),
+            kat_field("valid.sig"),
+        );
+        assert_eq!(pk.len(), PK_LEN);
+        assert_eq!(sig.len(), SIG_LEN);
+        assert!(verify(&pk, &msg, &sig), "Wycheproof baseline must verify");
+    }
+
+    #[test]
+    fn wycheproof_modified_signature_rejected() {
+        // tcId 8: a valid signature with a bit flipped in c~ (ModifiedSignature).
+        let (pk, msg, sig) = (
+            kat_field("invalid.pk"),
+            kat_field("invalid.msg"),
+            kat_field("invalid.sig"),
+        );
+        assert_eq!(sig.len(), SIG_LEN, "full-length forgery, not a length reject");
+        assert!(!verify(&pk, &msg, &sig), "modified signature must be rejected");
+    }
 }
