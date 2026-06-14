@@ -1,0 +1,29 @@
+[package]
+name = "mldsa-verify"
+version = "0.1.0"
+edition = "2021"
+description = "Verify-only ML-DSA-65 (FIPS 204) post-quantum signatures over a C ABI — a thin, embeddable RustCrypto wrapper for FFI."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/HelloHQ/mldsa-verify"
+keywords = ["ml-dsa", "fips204", "post-quantum", "signature", "ffi"]
+categories = ["cryptography", "no-std::no-alloc", "api-bindings"]
+
+[lib]
+name = "mldsa_verify"
+# staticlib → iOS/static linking; cdylib → desktop/Android shared lib; rlib → tests.
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+# RustCrypto ML-DSA (FIPS 204), ACVP-validated upstream. We expose verify only.
+ml-dsa = "0.1.1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+# panic = unwind (default) so the FFI entrypoint's catch_unwind converts any
+# panic into a "0" (invalid) return instead of unwinding across the C boundary.
+
+[dev-dependencies]
+# Used only by examples/gen_vector.rs (test-vector generator).
+base64 = "0.22.1"

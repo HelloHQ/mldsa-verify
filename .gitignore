@@ -1,0 +1,4 @@
+# Rust build output. Cargo.lock IS committed (reproducible verifier builds).
+/target
+# Release staging produced by build-release.sh.
+/dist
