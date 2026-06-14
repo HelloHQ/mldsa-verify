@@ -145,7 +145,7 @@ mod tests {
     const KAT: &str = include_str!("../tests/vectors/wycheproof_mldsa65_verify.hex");
 
     fn decode_hex(s: &str) -> Vec<u8> {
-        assert!(s.len() % 2 == 0, "odd hex length");
+        assert!(s.len().is_multiple_of(2), "odd hex length");
         (0..s.len())
             .step_by(2)
             .map(|i| u8::from_str_radix(&s[i..i + 2], 16).expect("bad hex"))
@@ -181,7 +181,14 @@ mod tests {
             kat_field("invalid.msg"),
             kat_field("invalid.sig"),
         );
-        assert_eq!(sig.len(), SIG_LEN, "full-length forgery, not a length reject");
-        assert!(!verify(&pk, &msg, &sig), "modified signature must be rejected");
+        assert_eq!(
+            sig.len(),
+            SIG_LEN,
+            "full-length forgery, not a length reject"
+        );
+        assert!(
+            !verify(&pk, &msg, &sig),
+            "modified signature must be rejected"
+        );
     }
 }
