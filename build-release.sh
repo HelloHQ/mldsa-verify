@@ -31,15 +31,29 @@ case "$(uname -s)" in
       target/aarch64-apple-darwin/release/libmldsa_verify.dylib \
       target/x86_64-apple-darwin/release/libmldsa_verify.dylib \
       -output "$STAGE/libmldsa_verify.dylib"
-    SIM="$STAGE/_iossim.a"
+    # iOS: a DYNAMIC-library xcframework (not static), so the consuming app
+    # embeds it into Frameworks/ and dlopen's it by name at runtime — matching
+    # how other native libs here are loaded, and avoiding static dead-stripping
+    # of the FFI symbol. @rpath install name lets the embedded copy resolve.
+    # Each slice's library must be NAMED libmldsa_verify.dylib (xcframework keeps
+    # the input basename, and the app dlopen's it by that name), so stage the
+    # device and simulator dylibs in separate dirs under the same filename.
+    DEV="$STAGE/_iosdev"
+    SIM="$STAGE/_iossim"
+    mkdir -p "$DEV" "$SIM"
+    cp target/aarch64-apple-ios/release/libmldsa_verify.dylib "$DEV/libmldsa_verify.dylib"
     lipo -create \
-      target/aarch64-apple-ios-sim/release/libmldsa_verify.a \
-      target/x86_64-apple-ios/release/libmldsa_verify.a -output "$SIM"
+      target/aarch64-apple-ios-sim/release/libmldsa_verify.dylib \
+      target/x86_64-apple-ios/release/libmldsa_verify.dylib \
+      -output "$SIM/libmldsa_verify.dylib"
+    install_name_tool -id @rpath/libmldsa_verify.dylib "$DEV/libmldsa_verify.dylib"
+    install_name_tool -id @rpath/libmldsa_verify.dylib "$SIM/libmldsa_verify.dylib"
     rm -rf "$STAGE/MldsaVerify.xcframework"
     xcodebuild -create-xcframework \
-      -library target/aarch64-apple-ios/release/libmldsa_verify.a \
-      -library "$SIM" -output "$STAGE/MldsaVerify.xcframework"
-    rm -f "$SIM"
+      -library "$DEV/libmldsa_verify.dylib" \
+      -library "$SIM/libmldsa_verify.dylib" \
+      -output "$STAGE/MldsaVerify.xcframework"
+    rm -rf "$DEV" "$SIM"
     ( cd "$STAGE" && zip -qry MldsaVerify.xcframework.zip MldsaVerify.xcframework && rm -rf MldsaVerify.xcframework )
     [ -n "${ANDROID_NDK_HOME:-}" ] && build_android || true
     ;;
