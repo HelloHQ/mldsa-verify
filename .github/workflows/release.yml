@@ -34,6 +34,17 @@ jobs:
         if: runner.os == 'macOS'
         run: rustup target add aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
 
+      # Android jniLibs (arm64-v8a, armeabi-v7a, x86_64, x86). The ubuntu runner
+      # ships the NDK; build-release.sh keys off ANDROID_NDK_HOME + cargo-ndk
+      # (installed here only on Linux, so the macOS job won't also build Android).
+      - name: Set up Android cross-build
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
+          cargo install cargo-ndk --locked
+          echo "ANDROID_NDK_HOME=${ANDROID_NDK_LATEST_HOME:-${ANDROID_NDK_ROOT:-$ANDROID_NDK_HOME}}" >> "$GITHUB_ENV"
+
       - name: Build native libs
         shell: bash
         run: bash build-release.sh "${{ runner.temp }}/dist"
