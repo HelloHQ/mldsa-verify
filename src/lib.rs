@@ -8,8 +8,8 @@
 //! appropriate to embed widely.
 //!
 //! **Interop:** verifies **pure ML-DSA** (not HashML-DSA/prehash) with an
-//! **empty context**, which is what Google Cloud KMS's `ML-DSA-65` and other
-//! FIPS-204 signers produce by default. The public key is the raw 1952-byte
+//! **empty context**, which is what standard `ML-DSA-65` FIPS-204 signers
+//! produce by default. The public key is the raw 1952-byte
 //! FIPS-204 encoding; the signature is the raw 3309-byte encoding.
 //!
 //! [`ml-dsa`]: https://crates.io/crates/ml-dsa

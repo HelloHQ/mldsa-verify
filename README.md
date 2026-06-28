@@ -18,9 +18,9 @@ deliberately separate concern and is **not** in this library.
 
 ## Interop
 
-Verifies **pure ML-DSA** (not HashML-DSA / prehash) with an **empty context**,
-matching what FIPS-204 signers emit by default — including **Google Cloud KMS**
-`ML-DSA-65`. Inputs are the raw FIPS-204 encodings:
+Verifies **pure ML-DSA** (not HashML-DSA / prehash) with an **empty context** —
+what standard FIPS-204 `ML-DSA-65` signers (including major cloud KMS/HSM
+offerings) emit by default. Inputs are the raw FIPS-204 encodings:
 
 | | Bytes |
 |---|---|
