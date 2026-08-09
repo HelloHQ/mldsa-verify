@@ -1,0 +1,37 @@
+version: 2
+
+# Dependabot VERSION updates. Security updates are a separate, repo-level
+# setting (`automated-security-fixes`) and are already on — this file does not
+# control them and cannot turn them off.
+#
+# Added 2026-08-09 when Renovate was removed org-wide.
+#
+# This crate implements the ML-DSA-65 half of plugin signature verification,
+# which is hybrid AND (Ed25519 + ML-DSA-65) and fail-closed. A bump to the
+# post-quantum dependency is a change to a verification primitive: review it as
+# a cryptographic change, not a version number. Never let a bump — or a build
+# failure caused by one — become an argument for weakening the hybrid to a
+# single algorithm.
+
+updates:
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["deps", "security"]
+    groups:
+      rust-minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["deps"]
+    groups:
+      actions-minor-and-patch:
+        update-types: ["minor", "patch"]
