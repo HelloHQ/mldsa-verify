@@ -26,4 +26,4 @@ strip = true
 
 [dev-dependencies]
 # Used only by examples/gen_vector.rs (test-vector generator).
-base64 = "0.22.1"
+base64 = "0.23.1"
