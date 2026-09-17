@@ -49,7 +49,7 @@ jobs:
         shell: bash
         run: bash build-release.sh "${{ runner.temp }}/dist"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist-${{ matrix.os }}
           path: ${{ runner.temp }}/dist/*
