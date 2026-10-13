@@ -5,8 +5,8 @@ name: Release
 # before installing (a trust gate). Trigger by pushing a tag `vX.Y.Z`.
 
 on:
-  push:
-    tags: ["v*"]
+  # CI-PAUSE 2026-10-13: push:
+  # CI-PAUSE 2026-10-13:   tags: ["v*"]
   workflow_dispatch:
     inputs:
       tag:
