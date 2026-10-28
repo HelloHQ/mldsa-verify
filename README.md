@@ -50,7 +50,10 @@ Cross-platform artifacts (universal macOS dylib, iOS `.xcframework`, Linux/
 Windows libs, Android jniLibs) are produced by [`build-release.sh`](build-release.sh)
 and published — with SHA-256 + GitHub build-provenance attestation — by the
 [release workflow](.github/workflows/release.yml). Consumers should verify both
-before installing.
+before installing. Each iOS slice of the xcframework carries its dSYM in its
+`dSYMs/` folder (from v0.1.4), built from the same compile so its UUID matches;
+the app archive carries it to App Store Connect, which symbolicates crash
+reports with it.
 
 Releases are cut with `cargo release` (one command bumps the version, tags, and
 pushes — which fires the release workflow). See [RELEASING.md](RELEASING.md).
