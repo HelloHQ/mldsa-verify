@@ -14,15 +14,22 @@ name = "mldsa_verify"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies]
-# RustCrypto ML-DSA (FIPS 204), ACVP-validated upstream. We expose verify only.
-ml-dsa = "0.1.1"
+# RustCrypto ML-DSA (FIPS 204), ACVP-validated upstream. `zeroize` makes the
+# signing key (seed and expanded key) wipe itself on drop; without it, signing
+# would leave the secret in freed memory.
+ml-dsa = { version = "0.1.1", features = ["zeroize"] }
+# The 32 bytes of fresh randomness each hedged signature takes (FIPS 204
+# Algorithm 2, `rnd`), read from the OS. `sys_rng` is the rand_core adapter
+# ml-dsa's `sign_randomized` takes.
+getrandom = { version = "0.4", features = ["sys_rng"] }
 
 [profile.release]
 opt-level = "z"
 lto = true
 strip = true
-# panic = unwind (default) so the FFI entrypoint's catch_unwind converts any
-# panic into a "0" (invalid) return instead of unwinding across the C boundary.
+# panic = unwind (default) so each FFI entry point's catch_unwind converts any
+# panic into a "0" (failure) return instead of unwinding across the C boundary,
+# and the signing key's zeroizing Drop still runs while it unwinds.
 
 [dev-dependencies]
 # Used only by examples/gen_vector.rs (test-vector generator).
