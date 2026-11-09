@@ -17,6 +17,16 @@ jobs:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test --all-targets
+      - run: cargo test --doc
+      # The exported symbols, called from C through the header against the
+      # built shared library, as an FFI consumer links them.
+      - name: C ABI test
+        if: runner.os != 'Windows'
+        run: |
+          cargo build --release
+          cc -std=c11 -Wall -Wextra -Werror -Iinclude tests/c/abi_test.c \
+            -Ltarget/release -lmldsa_verify -o target/abi_test
+          LD_LIBRARY_PATH=target/release DYLD_LIBRARY_PATH=target/release target/abi_test
 
   lint:
     name: fmt + clippy
