@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the ML-DSA-65 verifier native libs for the CURRENT host's platforms and
+# Build the ML-DSA-65 sign + verify native libs for the CURRENT host's platforms and
 # stage them (+ SHA-256SUMS) for the release pipeline (.github/workflows/release.yml).
 #
 #   macOS  → libmldsa_verify.dylib (universal) + MldsaVerify.xcframework (iOS)

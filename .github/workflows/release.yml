@@ -1,6 +1,6 @@
 name: Release
 
-# Cross-builds the verifier native libs and publishes a GitHub Release with
+# Cross-builds the ML-DSA-65 sign + verify native libs and publishes a GitHub Release with
 # per-asset build-provenance attestation. Consumers verify SHA-256 + attestation
 # before installing (a trust gate). Trigger by pushing a tag `vX.Y.Z`.
 
